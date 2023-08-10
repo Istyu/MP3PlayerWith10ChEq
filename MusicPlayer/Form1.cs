@@ -200,7 +200,7 @@ namespace MusicPlayer
 
             MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
             var devices = enumerator.EnumerateAudioEndPoints( DataFlow.All, DeviceState.Active );
-            comboBox1.Text = "Change the audio source...";
+            comboBox1.Text = "Choose the audio source...";
             comboBox1.Items.AddRange( devices.ToArray() );
 
             eqValues = new float[10];
