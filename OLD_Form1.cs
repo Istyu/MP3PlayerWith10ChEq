@@ -23,12 +23,10 @@ namespace MusicPlayer
         private NAudio.Extras.Equalizer equalizer;
         private NAudio.Extras.EqualizerBand[] bands;
 
-        //private NAudio.Wave.BlockAlignReductionStream stream = null;
+        private NAudio.Wave.BlockAlignReductionStream stream = null;
         //private NAudio.Wave.DirectSoundOut output = null;
         private NAudio.Wave.WaveOutEvent output = null; // With this possible the sound volume controlling
-        private NAudio.Wave.WaveStream pcm = null;
         private List<string> songPaths = new List<string>();
-        private List<string> SfileName = new List<string>();
 
         public float[] eqValues;
         public int[] eqScrollValues;
@@ -47,9 +45,161 @@ namespace MusicPlayer
         public bool visibleEqAndList;
         //public bool audioFileLoaded;
 
+        public float Band1
+        {
+            get
+            {
+                return bands[0].Gain;
+            }
+            set
+            {
+                if (bands[0].Gain != value)
+                {
+                    bands[0].Gain = value;
+                    //OnPropertyChanged("Band1");
+                }
+            }
+        }
+        public float Band2
+        {
+            get
+            {
+                return bands[1].Gain;
+            }
+            set
+            {
+                if (bands[1].Gain != value)
+                {
+                    bands[1].Gain = value;
+                    //OnPropertyChanged("Band2");
+                }
+            }
+        }
+        public float Band3
+        {
+            get
+            {
+                return bands[2].Gain;
+            }
+            set
+            {
+                if (bands[2].Gain != value)
+                {
+                    bands[2].Gain = value;
+                    //OnPropertyChanged("Band3");
+                }
+            }
+        }
+        public float Band4
+        {
+            get
+            {
+                return bands[3].Gain;
+            }
+            set
+            {
+                if (bands[3].Gain != value)
+                {
+                    bands[3].Gain = value;
+                    //OnPropertyChanged("Band4");
+                }
+            }
+        }
+        public float Band5
+        {
+            get
+            {
+                return bands[4].Gain;
+            }
+            set
+            {
+                if (bands[4].Gain != value)
+                {
+                    bands[4].Gain = value;
+                    //OnPropertyChanged("Band5");
+                }
+            }
+        }
+        public float Band6
+        {
+            get
+            {
+                return bands[5].Gain;
+            }
+            set
+            {
+                if (bands[5].Gain != value)
+                {
+                    bands[5].Gain = value;
+                    //OnPropertyChanged("Band6");
+                }
+            }
+        }
+        public float Band7
+        {
+            get
+            {
+                return bands[6].Gain;
+            }
+            set
+            {
+                if (bands[6].Gain != value)
+                {
+                    bands[6].Gain = value;
+                    //OnPropertyChanged("Band7");
+                }
+            }
+        }
+        public float Band8
+        {
+            get
+            {
+                return bands[7].Gain;
+            }
+            set
+            {
+                if (bands[7].Gain != value)
+                {
+                    bands[7].Gain = value;
+                    //OnPropertyChanged("Band7");
+                }
+            }
+        }
+        public float Band9
+        {
+            get
+            {
+                return bands[8].Gain;
+            }
+            set
+            {
+                if (bands[8].Gain != value)
+                {
+                    bands[8].Gain = value;
+                    //OnPropertyChanged("Band7");
+                }
+            }
+        }
+        public float Band10
+        {
+            get
+            {
+                return bands[9].Gain;
+            }
+            set
+            {
+                if (bands[9].Gain != value)
+                {
+                    bands[9].Gain = value;
+                    //OnPropertyChanged("Band7");
+                }
+            }
+        }
+
         public Form1()
         {
             InitializeComponent();
+            //InitializeListView();
 
             MMDeviceEnumerator enumerator = new MMDeviceEnumerator();
             var devices = enumerator.EnumerateAudioEndPoints( DataFlow.All, DeviceState.Active );
@@ -75,10 +225,6 @@ namespace MusicPlayer
             volText = "";
             visibleEqAndList = false;
 
-            musicList.AllowDrop = true;
-            musicList.DragEnter += musicList_DragEnter;
-            musicList.DragDrop += musicList_DragDrop;
-
             string executablePath = AppDomain.CurrentDomain.BaseDirectory;
             string fileName = "eqsettings.txt";
             string filePath = Path.Combine(executablePath, fileName);
@@ -86,6 +232,13 @@ namespace MusicPlayer
             if( !System.IO.File.Exists( filePath ) )
                 eqSettingsFirstTime();
         }
+
+        /*private void InitializeListView()
+        {
+            musicList.View = View.Details;
+            musicList.Columns.Add("Name");
+            musicList.Columns.Add("Duration");
+        }*/
 
         private void timer1_Tick(object sender, EventArgs e)
         {
@@ -117,15 +270,16 @@ namespace MusicPlayer
                 using (var file = TagLib.File.Create(filePath))
                 {
                     TimeSpan duration = file.Properties.Duration;
-                    return duration.ToString(@"mm\:ss"); // Formatted duration (minute:second)
+                    return duration.ToString(@"mm\:ss"); // Formázott időtartam (perc:másodperc)
                 }
             }
             catch (Exception)
             {
-                return "N/A"; // In the event of an error or if there is no duration information
+                return "N/A"; // Hiba esetén vagy ha nincs időtartam információ
             }
         }
 
+        private NAudio.Wave.WaveStream pcm = null;
         private void openAudio_Click(object sender, EventArgs e)
         {
             OpenFileDialog open = new OpenFileDialog();
@@ -137,18 +291,12 @@ namespace MusicPlayer
 
             foreach(string fileName in open.FileNames)
             {
-                songPaths.Add(fileName);
-                string selectedFilePath = fileName;
-                var file = TagLib.File.Create(selectedFilePath);
                 string songTitle = System.IO.Path.GetFileNameWithoutExtension(fileName);
-                string artist = file.Tag.FirstPerformer; // Artist
+                //string artist = "Ismeretlen"; // Ide valós előadó adatokat olvashatsz be
                 string songDuration = GetDuration(fileName);
-                ListViewItem item = new ListViewItem(new string[] { songTitle, artist, songDuration });
+                ListViewItem item = new ListViewItem(new string[] { songTitle, songDuration });
                 musicList.Items.Add(item);
             }
-
-            foreach( string fileName in open.SafeFileNames )
-                SfileName.Add(fileName);
         }
 
         private void musicList_SelectedIndexChanged(object sender, EventArgs e)
@@ -156,71 +304,18 @@ namespace MusicPlayer
             if (musicList.SelectedItems.Count > 0)
             {
                 int selectedIndex = musicList.SelectedItems[0].Index;
-                selectSong(selectedIndex);
+                PlaySong(selectedIndex);
             }
         }
 
-        // DragEnter event management
-        private void musicList_DragEnter(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-                foreach (string file in files)
-                {
-                    if (IsMp3File(file))
-                    {
-                        e.Effect = DragDropEffects.Copy;
-                    }
-                    else
-                    {
-                        e.Effect = DragDropEffects.None;
-                        break; // If any file has an incorrect extension, we can abort the process
-                    }
-                }
-            }
-            else
-            {
-                e.Effect = DragDropEffects.None;
-            }
-        }
-
-        private bool IsMp3File(string filePath)
-        {
-            string extension = Path.GetExtension(filePath);
-            return string.Equals(extension, ".mp3", StringComparison.OrdinalIgnoreCase);
-        }
-
-        // DragDrop event management
-        private void musicList_DragDrop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-            {
-                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-                foreach (string fileName in files)
-                {
-                    songPaths.Add(fileName);
-                    string selectedFilePath = fileName;
-                    var file = TagLib.File.Create(selectedFilePath);
-                    string songTitle = System.IO.Path.GetFileNameWithoutExtension(fileName);
-                    string artist = file.Tag.FirstPerformer; // Artist
-                    string songDuration = GetDuration(fileName);
-                    // Files adding to the ListView
-                    ListViewItem item = new ListViewItem(new string[] { songTitle, artist, songDuration });
-                    musicList.Items.Add(item);
-                }
-
-                foreach( string fileName in files )
-                    SfileName.Add(System.IO.Path.GetFileName(fileName));
-            }
-        }
-
-        private void selectSong(int index)
+        private void PlaySong(int index)
         {
             if (index >= 0 && index < songPaths.Count)
             {
-                string selectedFilePath = songPaths[index];
+                //player.SoundLocation = songPaths[index];
+                //player.Play();
+
+                string selectedFilePath = songPaths[index].FileName;
                 var file = TagLib.File.Create(selectedFilePath);
                 string title = file.Tag.Title; // Title
                 string artist = file.Tag.FirstPerformer; // Artist
@@ -248,8 +343,8 @@ namespace MusicPlayer
 
                 DisposeWave();
                 resetBandBars();
-                //string selectedFileName = open.SafeFileName;
-                label4.Text = SfileName[index];
+                string selectedFileName = songPaths[index].SafeFileName;
+                label4.Text = selectedFileName;
                 stopped = false;
 
                 if(!threadStarted)
@@ -330,7 +425,7 @@ namespace MusicPlayer
                     }
                 };
 
-                this.pcm = NAudio.Wave.WaveFormatConversionStream.CreatePcmStream( new NAudio.Wave.Mp3FileReader(songPaths[index]) );
+                this.pcm = NAudio.Wave.WaveFormatConversionStream.CreatePcmStream( new NAudio.Wave.Mp3FileReader(songPaths[index].FileName) );
                 WaveChannel32 waveChannel = new WaveChannel32(pcm);
                 ISampleProvider sampleChannel = new SampleChannel(waveChannel);
                 equalizer = new NAudio.Extras.Equalizer(sampleChannel, bands);
@@ -453,7 +548,6 @@ namespace MusicPlayer
                 band9Bar.Visible = false;
                 band10Bar.Visible = false;
                 visibleEqAndList = false;
-                musicList.Visible = true;
             }
             else if( !visibleEqAndList )
             {
@@ -478,21 +572,13 @@ namespace MusicPlayer
                 band9Bar.Visible = true;
                 band10Bar.Visible = true;
                 visibleEqAndList = true;
-                musicList.Visible = false;
             }
         }
 
         private void exit_Click(object sender, EventArgs e)
         {
-            try
-            {
-                DisposeWave();
-                this.Close();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("An error occurred while exiting: " + ex.Message);
-            }
+            DisposeWave();
+            this.Close();
         }
 
         private void positionBar_Scroll(object sender, EventArgs e)
@@ -508,14 +594,34 @@ namespace MusicPlayer
                 else
                     this.pcm.CurrentTime = TimeSpan.FromSeconds(positionBar.Value);
             }
-            else
-                positionBar.Value = 0;
         }
 
         private void trackBar2_Scroll(object sender, EventArgs e)
         {
             if (equalizer == null)
                 return;
+            /*if( band1Bar.Value == 0 )
+                bands[0].Gain = 0.0f;
+            if( band1Bar.Value == 1 )
+                bands[0].Gain = 1.0f;
+            if( band1Bar.Value == 2 )
+                bands[0].Gain = 2.0f;
+            if( band1Bar.Value == 3 )
+                bands[0].Gain = 3.0f;
+            if( band1Bar.Value == 4 )
+                bands[0].Gain = 4.0f;
+            if( band1Bar.Value == 5 )
+                bands[0].Gain = 5.0f;
+            if( band1Bar.Value == 6 )
+                bands[0].Gain = 6.0f;
+            if( band1Bar.Value == 7 )
+                bands[0].Gain = 7.0f;
+            if( band1Bar.Value == 8 )
+                bands[0].Gain = 8.0f;
+            if( band1Bar.Value == 9 )
+                bands[0].Gain = 9.0f;
+            if( band1Bar.Value == 10 )
+                bands[0].Gain = 10.0f;*/
 
             int selectedValue = band1Bar.Value;
             float newGain = Math.Min(selectedValue, 10.0f);
@@ -900,11 +1006,11 @@ namespace MusicPlayer
                 pcm.Dispose();
                 pcm = null;
             }
-            //if( stream != null )
-            //{
-            //    stream.Dispose();
-            //    stream = null;
-            //}
+            if( stream != null )
+            {
+                stream.Dispose();
+                stream = null;
+            }
         }
 
         void ThreadFunc()
