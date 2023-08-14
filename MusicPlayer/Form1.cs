@@ -209,10 +209,11 @@ namespace MusicPlayer
                     // Files adding to the ListView
                     ListViewItem item = new ListViewItem(new string[] { songTitle, artist, songDuration });
                     musicList.Items.Add(item);
+                    SfileName.Add(System.IO.Path.GetFileName(fileName));
                 }
 
-                foreach( string fileName in files )
-                    SfileName.Add(System.IO.Path.GetFileName(fileName));
+                //foreach( string fileName in files )
+                //    SfileName.Add(System.IO.Path.GetFileName(fileName));
             }
         }
 
@@ -245,8 +246,8 @@ namespace MusicPlayer
                     coverBox.Image = coverBox.InitialImage;
 
                 //audioFileLoaded = true;
-
-                DisposeWave();
+                bool pcmDisp = false;
+                DisposeWave(pcmDisp);
                 resetBandBars();
                 //string selectedFileName = open.SafeFileName;
                 label4.Text = SfileName[index];
@@ -484,9 +485,10 @@ namespace MusicPlayer
 
         private void exit_Click(object sender, EventArgs e)
         {
+            bool pcmDisp = true;
             try
             {
-                DisposeWave();
+                DisposeWave(pcmDisp);
                 this.Close();
             }
             catch (Exception ex)
@@ -886,7 +888,7 @@ namespace MusicPlayer
             band10Bar.Value = 0;
         }
 
-        private void DisposeWave()
+        private void DisposeWave(bool pcmDisp)
         {
             if( output != null )
             {
@@ -895,7 +897,7 @@ namespace MusicPlayer
                 output.Dispose();
                 output = null;
             }
-            if( pcm != null )
+            if( pcmDisp && pcm != null )
             {
                 pcm.Dispose();
                 pcm = null;
