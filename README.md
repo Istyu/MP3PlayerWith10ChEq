@@ -1,3 +1,9 @@
+<p align="center">
+  <img src="Mp3Player.png?raw=true" />
+</p>
+
+## MP3Player With 10 Channel Eq
+
 This is a mp3 player with 10 channel equalizer. 
 There is an option saving the EQ settings. 
 Only mp3 files can play. 
